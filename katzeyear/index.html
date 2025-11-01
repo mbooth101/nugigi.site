@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<!--
+Oi, there's nothing to see here!
+Go on, off ya feck, ya nosey bastard!
+-->
+<head>
+	<link rel="stylesheet" href="../styles.css" />
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+	<link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+	<meta property="og:type" content="website"/>
+	<meta property="og:url" content="https://nugigi.site/katzeyear"/>
+	<meta property="og:title" content="Katze Kalendar"/>
+	<meta property="og:description" content="Katze Kalendar to Gregorian Calendar conversion table."/>
+	<meta property="og:image" content="https://nugigi.site/SEAL.png"/>
+	<style>
+.season { vertical-align: top; }
+.season p { margin: 0; padding: 0 1rem 0 1rem; }
+.season p.today { font-weight: bold; color: darkred;}
+	</style>
+</head>
+<body class="nft">
+	<span class="sealContainer"><a href="../" title="Back to Intranet Home Page"><img class="seal" src="../SEAL.png" alt="A brown and dark red seal with NeRdfiGhTerIa INc. branded on it in bright green."/></a></span>
+	<div>
+	<h1>Katze Kalendar</h1>
+	<p>Katze Kalendar to Gregorian Calendar conversion table.</p>
+	<p>
+		<label for="startOffset">Offset from Gregorian year: <span id="startOffsetValue">0</span></label>
+		<br/>
+		<input type="range" id="startOffset" name+"startOffset" min="0" max="120" value="59" onchange="update()" />
+	</p>
+	<p>
+		<table>
+			<tr><th>Spring</th><th>Harvest</th><th>Winter</th></tr>
+			<tr><td id="season_Spring" class="season"></td><td id="season_Harvest" class="season"></td><td id="season_Winter" class="season"></td></tr>
+		</table>
+	</p>
+	<p class="line">Today is: <span id="today"></span></p>
+	<small>(c) NFT Inc. 1994-1999 | Best viewed on Internet Explorer 5 or Netscape Navigator 4</small></p>
+	</div>
+<script>
+	// Function to get the day of the year for the given date e.g. 0 to 365
+	const getDayOfYear = d => Math.floor((d - new Date(d.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) - 1;
+
+	// Function to get the total num of days in the year of the given date e.g. 365 or 366
+	const getNumDaysInYear = d => getDayOfYear(new Date(d.getFullYear(), 11, 31)) + 1;
+
+	// Function to append the correct (English) suffix to a given number, returns e.g. 1st, 5th, etc
+	function ordinalSuffix(i) {
+		let j = i % 10;
+		if (j === 1) {
+			return i + "st";
+		}
+		if (j === 2) {
+			return i + "nd";
+		}
+		if (j === 3) {
+			return i + "rd";
+		}
+		return i + "th";
+	}
+
+	// Lookup table for month names
+	const kmonths = [
+		"Sprouts",
+		"Petals",
+		"Leaves",
+		"Bales",
+		"Bushels",
+		"Barrels",
+		"Pyres",
+		"Hearths",
+		"Candles",
+		"Midwinter"];
+
+	function update() {
+		const today = new Date();
+		const yearStart = new Date(today.getFullYear(), 0, 1);
+
+		// Update start of year offset value selection
+		const offset = parseInt(document.getElementById("startOffset").value);
+		document.getElementById("startOffsetValue").textContent = `${offset} days`;
+
+		// Length of midwinter is the number of excess days after nine 40-day months
+		// (I.e., will be 5 or 6 depending on whether it's a year or not)
+		const numDays = getNumDaysInYear(today);
+		const excess = numDays - 360;
+
+		// Clear previous output
+		document.getElementById("season_Spring").innerHTML = '';
+		document.getElementById("season_Harvest").innerHTML = '';
+		document.getElementById("season_Winter").innerHTML = '';
+
+		// For every day in a Katze year
+		for (let dayOfYear = 0; dayOfYear < numDays; dayOfYear++) {
+
+			// After day 280, we need to adjust to compensate for the excess days of the midwinter month
+			const dayOfYearAdj = dayOfYear >= 280 + excess ? dayOfYear - excess : dayOfYear;
+
+			// Calculate the Katze day and month using the adjusted day of year
+			let kday = dayOfYearAdj % 40 + 1;
+			let kmonth = Math.floor(dayOfYearAdj / 40);
+			// Special case for the midwinter month
+			if (dayOfYear >= 280 && dayOfYear < 280 + excess) {
+				kmonth = -1;
+			}
+
+			// Equiv day of Gregorian year is the Katze day of year adjusted by the start of year offset
+			const dayOfGregorianYear = dayOfYear + offset;
+			const gregDate = new Date(yearStart);
+			gregDate.setDate(gregDate.getDate() + dayOfGregorianYear);
+
+			// Render output
+			let seasonElem = document.getElementById("season_Winter")
+			if (dayOfYear < 120) {
+				seasonElem = document.getElementById("season_Spring");
+			} else if (dayOfYear < 240) {
+				seasonElem = document.getElementById("season_Harvest");
+			}
+			const dateElem = seasonElem.appendChild(document.createElement("p"));
+			if (gregDate.setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
+				dateElem.setAttribute('class', 'today');
+			}
+			dateElem.textContent = `${ordinalSuffix(kday)} of ${kmonths.at(kmonth)} (${gregDate.toISOString().split('T')[0]})`;
+		}
+	}
+
+	update();
+</script>
+</body>
+</html>
