@@ -5,24 +5,20 @@ Oi, there's nothing to see here!
 Go on, off ya feck, ya nosey bastard!
 -->
 <head>
-	<link rel="stylesheet" href="../styles.css" />
-	<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-	<link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+	<link rel="stylesheet" href="styles.css" />
 	<meta property="og:type" content="website"/>
 	<meta property="og:url" content="https://nugigi.site/katzeyear"/>
 	<meta property="og:title" content="Katze Calendar"/>
 	<meta property="og:description" content="Katze's Mercian-Umbrian Calendar to Gregorian Calendar conversion table."/>
-	<meta property="og:image" content="https://nugigi.site/SEAL.png"/>
 	<style>
+body { background-color: #e3dac9; color: #2e2014; }
 .season { vertical-align: top; }
-.season p { margin: 0; padding: 0 1rem 0 1rem; }
-.season p.today { font-weight: bold; color: darkred;}
+.month { margin: 0; padding: 0.5rem; }
+.month p { margin: 0; padding: 0; }
+.month p.today { font-weight: bold; color: darkred;}
 	</style>
 </head>
-<body class="nft">
-	<span class="sealContainer"><a href="../" title="Back to Intranet Home Page"><img class="seal" src="../SEAL.png" alt="A brown and dark red seal with NeRdfiGhTerIa INc. branded on it in bright green."/></a></span>
+<body>
 	<div>
 	<h1>Katze Calendar</h1>
 	<p>Katze's Mercian-Umbrian Calendar to Gregorian Calendar conversion table.</p>
@@ -33,16 +29,18 @@ Go on, off ya feck, ya nosey bastard!
 		<input type="range" id="startOffset" name="startOffset" min="0" max="120" value="78" onchange="update()" />
 	</p>
 	<p>
-		Kalendar for year: <input type="number" id="yearSelection" name="yearSelection" min="1800" max="2199" step="1" value="2025" onchange="update()" />
+		Calendar for year: <input type="number" id="yearSelection" name="yearSelection" min="1800" max="2199" step="1" value="2025" onchange="update()" />
 	</p>
 	<p>
 		<table>
 			<tr><th>Spring</th><th>Harvest</th><th>Winter</th></tr>
-			<tr><td id="season_Spring" class="season season_Spring"></td><td id="season_Harvest" class="season season_Harvest"></td><td id="season_Winter" class="season season_Winter"></td></tr>
+			<tr>
+				<td id="season_Spring" class="season season_Spring"></td>
+				<td id="season_Harvest" class="season season_Harvest"></td>
+				<td id="season_Winter" class="season season_Winter"></td>
+			</tr>
 		</table>
 	</p>
-	<p class="line">Today is: <span id="today"></span></p>
-	<small>(c) NFT Inc. 1994-1999 | Best viewed on Internet Explorer 5 or Netscape Navigator 4</small></p>
 	</div>
 <script>
 	// Function to get the day of the year for the given date e.g. 0 to 365
@@ -75,9 +73,9 @@ Go on, off ya feck, ya nosey bastard!
 		"Bushels",
 		"Barrels",
 		"Pyres",
+		"Midwinter",
 		"Hearths",
-		"Candles",
-		"Midwinter"];
+		"Candles"];
 
 	function update() {
 		const today = new Date();
@@ -101,6 +99,22 @@ Go on, off ya feck, ya nosey bastard!
 		document.getElementById("season_Harvest").innerHTML = '';
 		document.getElementById("season_Winter").innerHTML = '';
 
+		// Add month containers
+		for (let i = 0; i < kmonths.length; i++) {
+			let seasonElem;
+			if (i < 3) {
+				seasonElem = document.getElementById("season_Spring");
+			} else if (i < 6) {
+				seasonElem = document.getElementById("season_Harvest");
+			} else {
+				seasonElem = document.getElementById("season_Winter");
+			}
+			const monthElem = seasonElem.appendChild(document.createElement("div"));
+			monthElem.setAttribute('id', `month_${kmonths.at(i)}`);
+			monthElem.classList.add('month');
+			monthElem.classList.add(`month_${kmonths.at(i)}`);
+		}
+
 		// For every day in a Katze year
 		for (let dayOfYear = 0; dayOfYear < numDays; dayOfYear++) {
 
@@ -111,8 +125,8 @@ Go on, off ya feck, ya nosey bastard!
 			let kday = dayOfYearAdj % 40 + 1;
 			let kmonth = Math.floor(dayOfYearAdj / 40);
 			// Special case for the midwinter month
-			if (dayOfYear >= 280 && dayOfYear < 280 + excess) {
-				kmonth = -1;
+			if (dayOfYear >= 280 + excess) {
+				kmonth++;
 			}
 
 			// Equiv day of Gregorian year is the Katze day of year adjusted by the start of year offset
@@ -121,15 +135,10 @@ Go on, off ya feck, ya nosey bastard!
 			gregDate.setDate(gregDate.getDate() + dayOfGregorianYear);
 
 			// Render output
-			let seasonElem = document.getElementById("season_Winter")
-			if (dayOfYear < 120) {
-				seasonElem = document.getElementById("season_Spring");
-			} else if (dayOfYear < 240) {
-				seasonElem = document.getElementById("season_Harvest");
-			}
-			const dateElem = seasonElem.appendChild(document.createElement("p"));
-			dateElem.classList.add('month');
-			dateElem.classList.add(`month_${kmonths.at(kmonth)}`);
+			const monthElem = document.getElementById(`month_${kmonths.at(kmonth)}`);
+			const dateElem = monthElem.appendChild(document.createElement("p"));
+			dateElem.classList.add('date');
+			dateElem.classList.add(`date_${ordinalSuffix(kday)}`);
 			if (gregDate.setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
 				dateElem.classList.add('today');
 			}
