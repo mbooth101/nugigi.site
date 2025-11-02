@@ -12,8 +12,8 @@ Go on, off ya feck, ya nosey bastard!
 	<link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
 	<meta property="og:type" content="website"/>
 	<meta property="og:url" content="https://nugigi.site/katzeyear"/>
-	<meta property="og:title" content="Katze Kalendar"/>
-	<meta property="og:description" content="Katze Kalendar to Gregorian Calendar conversion table."/>
+	<meta property="og:title" content="Katze Calendar"/>
+	<meta property="og:description" content="Katze's Mercian-Umbrian Calendar to Gregorian Calendar conversion table."/>
 	<meta property="og:image" content="https://nugigi.site/SEAL.png"/>
 	<style>
 .season { vertical-align: top; }
@@ -24,20 +24,21 @@ Go on, off ya feck, ya nosey bastard!
 <body class="nft">
 	<span class="sealContainer"><a href="../" title="Back to Intranet Home Page"><img class="seal" src="../SEAL.png" alt="A brown and dark red seal with NeRdfiGhTerIa INc. branded on it in bright green."/></a></span>
 	<div>
-	<h1>Katze Kalendar</h1>
-	<p>Katze Kalendar to Gregorian Calendar conversion table.</p>
+	<h1>Katze Calendar</h1>
+	<p>Katze's Mercian-Umbrian Calendar to Gregorian Calendar conversion table.</p>
+	<p>The calendar has 9 months of 40 days each with a short Midwinter month that gains an extra day on leap years.</p>
 	<p>
 		<label for="startOffset">Offset from Gregorian year: <span id="startOffsetValue">0</span></label>
 		<br/>
-		<input type="range" id="startOffset" name="startOffset" min="0" max="120" value="59" onchange="update()" />
+		<input type="range" id="startOffset" name="startOffset" min="0" max="120" value="78" onchange="update()" />
 	</p>
 	<p>
-		Kalendar for year: <input type="number" id="yearSelection" name="yearSelection" min="1900" max="2099" step="1" value="2025" onchange="update()" />
+		Kalendar for year: <input type="number" id="yearSelection" name="yearSelection" min="1800" max="2199" step="1" value="2025" onchange="update()" />
 	</p>
 	<p>
 		<table>
 			<tr><th>Spring</th><th>Harvest</th><th>Winter</th></tr>
-			<tr><td id="season_Spring" class="season"></td><td id="season_Harvest" class="season"></td><td id="season_Winter" class="season"></td></tr>
+			<tr><td id="season_Spring" class="season season_Spring"></td><td id="season_Harvest" class="season season_Harvest"></td><td id="season_Winter" class="season season_Winter"></td></tr>
 		</table>
 	</p>
 	<p class="line">Today is: <span id="today"></span></p>
@@ -127,13 +128,17 @@ Go on, off ya feck, ya nosey bastard!
 				seasonElem = document.getElementById("season_Harvest");
 			}
 			const dateElem = seasonElem.appendChild(document.createElement("p"));
+			dateElem.classList.add('month');
+			dateElem.classList.add(`month_${kmonths.at(kmonth)}`);
 			if (gregDate.setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
-				dateElem.setAttribute('class', 'today');
+				dateElem.classList.add('today');
 			}
 			dateElem.textContent = `${ordinalSuffix(kday)} of ${kmonths.at(kmonth)} (${gregDate.toISOString().split('T')[0]})`;
 		}
 	}
 
+	// Default to current year
+	document.getElementById("yearSelection").value = new Date().getFullYear();
 	update();
 </script>
 </body>
